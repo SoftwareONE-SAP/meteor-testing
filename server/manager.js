@@ -32,6 +32,17 @@ class TestManager {
 		 */
 		this.slimer_script = Assets.absoluteFilePath('server/slimer.js' );
 
+    /**
+     * Track the slimer process between restarts
+     * @type {Process}
+     */
+    this.slimer_proc = null;
+
+    /**
+     * Listen for meteor events
+     */
+    process.on("message", this._onClientRefreshOnly.bind(this));
+
 		/**
 		 * Server side failure count
 		 * @type {Number}
@@ -68,6 +79,10 @@ class TestManager {
 
 			this.printHeader('Server');
 
+			/**
+			 * Run the server side tests
+			 * @type {MochaRunner}
+			 */
 			this._runner = mocha.run(this.onMochaServerSideComplete.bind(this));
 		}.bind(this))
 
@@ -94,11 +109,32 @@ class TestManager {
 	 * @return {[type]} [description]
 	 */
 	startClient() {
+    /**
+     * Reset the number of client errors
+     * @type {Number}
+     */
+    this.client_failures = 0;
+
+    /**
+     * IF we have a currently running process we need to exit it
+     */
+    if(this.slimer_proc !== null) {
+      /**
+       * Kill the script
+       */
+      this.slimer_proc.kill('SIGKILL');
+
+      /**
+       * Wipe the object
+       */
+      this.slimer_proc = null;
+    }
+
 		/**
 		 * Create teh zombie process
 		 * @type {[type]}
 		 */
-		const proc = childProcess.execFile("xvfb-run", [this.slimer_bin, this.slimer_script], {
+		this.slimer_proc = childProcess.execFile("xvfb-run", [this.slimer_bin, this.slimer_script], {
 			env: {
 				URL: Meteor.absoluteUrl()
 			}
@@ -107,13 +143,19 @@ class TestManager {
 		/**
 		 * Bind pipes
 		 */
-		proc.stdout.on("data", this.onClientStreamOut.bind(this));
-		// proc.stderr.on("error", this.onClientStreamError.bind(this));
+		this.slimer_proc.stdout.on("data", this.onClientStreamOut.bind(this));
+		this.slimer_proc.stderr.on("error", this.onClientStreamError.bind(this));
 
 		/**
 		 * Listen for an exit code
 		 */
-		proc.on('exit', this.onClientExit.bind(this));
+		this.slimer_proc.on('exit', this.onClientExit.bind(this));
+	}
+
+	_onClientRefreshOnly(message) {
+    if(message && message.refresh && message.refresh == 'client') {
+      this.startClient();
+    }
 	}
 
 	/**
@@ -163,7 +205,7 @@ class TestManager {
 	 * @return {[type]} [description]
 	 */
 	onClientStreamError(data) {
-		// process.stderr.write(data);
+		process.stderr.write(data);
 	}
 }
 

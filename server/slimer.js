@@ -29,7 +29,7 @@ page.onConsoleMessage = function (msg, line, file) {
 };
 
 /**
- * Open the webpage and 
+ * Open the webpage and
  */
 page.open(system.env['URL']);
 
@@ -72,39 +72,36 @@ function evaluate() {
 
 intervalId = setInterval(evaluate, interval);
 
-
-
-var startTime;
-
-let complete;
-let failures;
-let lastOutput = new Date();
-
-
-page.open("http://localhost:3300/")
-
-const testing = setInterval(function() {
-
-  complete = page.evaluate(function() {
-    return window.__tests_complete__;
-  });
-
-  if (complete) {
-    // console.log('inside here');
-    // console.log(complete);
-    failures = page.evaluate(function() {
-      return window.__tests_failures__;
-    });
-    page.close();
-    // console.log(failures);
-    // console.log('BEFORE EXIT');
-    slimer.exit(failures);
-    clearInterval(testing);
-  }
-
-  // sage guard, we will exist if there hasn't been console out put for 30s
-  if ((new Date) - lastOutput > 30000) {
-    slimer.exit(2);
-  }
-}, 500);
-
+// var startTime;
+//
+// let complete;
+// let failures;
+// let lastOutput = new Date();
+//
+//
+// page.open("http://localhost:3300/")
+//
+// const testing = setInterval(function() {
+//
+//   complete = page.evaluate(function() {
+//     return window.__tests_complete__;
+//   });
+//
+//   if (complete) {
+//     // console.log('inside here');
+//     // console.log(complete);
+//     failures = page.evaluate(function() {
+//       return window.__tests_failures__;
+//     });
+//     page.close();
+//     // console.log(failures);
+//     // console.log('BEFORE EXIT');
+//     slimer.exit(failures);
+//     clearInterval(testing);
+//   }
+//
+//   // sage guard, we will exist if there hasn't been console out put for 30s
+//   if ((new Date) - lastOutput > 30000) {
+//     slimer.exit(2);
+//   }
+// }, 500);
