@@ -141,9 +141,11 @@ class TestManager {
 		);
 
 		/**
-		 * Proxy the exit
+		 * Proxy the exit code
 		 */
- 		process.exit((this.client_failures + this.server_failures) > 0 ? 1 : 0);
+		if(process.env.AUTO_EXIT && process.env.AUTO_EXIT === "1") {
+			process.exit((this.client_failures + this.server_failures) > 0 ? 1 : 0);
+		}
 	}
 
 	/**
