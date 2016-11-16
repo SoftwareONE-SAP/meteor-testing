@@ -57,6 +57,6 @@ Package.onTest(function onTest(api) {
 
   api.use('ecmascript');
   api.use('tinytest');
-  api.use('centiq:zombie');
+  api.use('centiq:testing');
 
 });
