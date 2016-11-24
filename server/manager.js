@@ -116,7 +116,7 @@ class TestManager {
     this.client_failures = 0;
 
     /**
-     * IF we have a currently running process we need to exit it
+     * If we have a currently running process we need to exit it
      */
     if(this.slimer_proc !== null) {
       /**
@@ -134,7 +134,7 @@ class TestManager {
 		 * Create teh zombie process
 		 * @type {[type]}
 		 */
-		this.slimer_proc = childProcess.execFile("xvfb-run", [this.slimer_bin, this.slimer_script], {
+		this.slimer_proc = childProcess.execFile("xvfb-run", [this.slimer_bin, this.slimer_script].concat(process.env['SLIMERJS_ARGS'] || []), {
 			env: {
 				URL: Meteor.absoluteUrl()
 			}
