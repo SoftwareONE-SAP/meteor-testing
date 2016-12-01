@@ -135,9 +135,9 @@ class TestManager {
 		 * @type {[type]}
 		 */
 		this.slimer_proc = childProcess.execFile("xvfb-run", [this.slimer_bin, this.slimer_script].concat(process.env['SLIMERJS_ARGS'] || []), {
-			env: {
+			env: Object.assign({
 				URL: Meteor.absoluteUrl()
-			}
+			}, process.env)
 		});
 
 		/**
