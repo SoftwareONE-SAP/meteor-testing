@@ -97,11 +97,24 @@ class TestManager {
 
 		this.server_failures = failures;
 
-		/**
-		 * 2. Start ZOMBIE for client side tests
-		 */
-		this.printHeader('Client');
-		this.startClient();
+    /**
+     * Check if we're only running tests server side.
+     */
+    if (process.env.SERVER_ONLY_TESTS) {
+
+      /**
+       * we don't need to worry about the client tests
+       * so just print the report.
+       */
+      this.printReport();
+
+    } else {
+
+      this.printHeader('Client');
+      this.startClient();
+
+    }
+
 	}
 
 	/**
@@ -158,29 +171,25 @@ class TestManager {
     }
 	}
 
-	/**
-	 * [onClientExit description]
-	 * @return {[type]} [description]
-	 */
-	onClientExit(failures) {
-		/**
-		 * Assign the exit code as the number of failures
-		 * @type {Number}
-		 */
-		this.client_failures = failures;
+  printReport() {
 
-		/**
-		 *
-		 */
-		console.log(
-			"All client and server tests finished!\n" +
-			"--------------------------------\n" +
-			"SERVER FAILURES: %s\n" +
-			"CLIENT FAILURES: %s\n" +
-			"--------------------------------",
-			this.server_failures,
-			this.client_failures
-		);
+    const report = [];
+    const horizonalRule = '------------------';
+
+    report.push('All tests have finished');
+    report.push(horizonalRule);
+    report.push(`SERVER FAILURES: ${this.server_failures}`);
+
+    if (!process.env.SERVER_ONLY_TESTS) {
+      report.push(`CLIENT FAILURES: ${this.client_failures}`);
+    }
+
+    report.push(horizonalRule);
+
+    /**
+     * Output the report.
+     */
+    console.log(report.join('\n'));
 
 		/**
 		 * Proxy the exit code
@@ -188,6 +197,26 @@ class TestManager {
 		if(process.env.AUTO_EXIT && process.env.AUTO_EXIT === "1") {
 			process.exit((this.client_failures + this.server_failures) > 0 ? 1 : 0);
 		}
+
+  }
+
+  /**
+   * When the slimer client process exits
+   * then this will run and give us the number of errors returned.
+   */
+	onClientExit(failures) {
+
+		/**
+		 * Assign the exit code as the number of failures
+		 * @type {Number}
+		 */
+		this.client_failures = failures;
+
+    /**
+     * When the client has exited then print the report.
+     */
+    this.printReport();
+
 	}
 
 	/**
